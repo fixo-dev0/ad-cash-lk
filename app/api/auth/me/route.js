@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { User, Comment } from "@/lib/models";
@@ -11,7 +13,6 @@ export async function GET() {
   const user = await User.findById(auth.uid).lean();
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Reset daily ads after 24h
   const lastReset = new Date(user.lastAdResetAt).getTime();
   if (Date.now() - lastReset >= 24 * 60 * 60 * 1000) {
     await User.updateOne({ _id: user._id }, { adsWatchedToday: 0, lastAdResetAt: new Date() });
@@ -37,4 +38,4 @@ export async function GET() {
     },
     myComments,
   });
-}
+      }
