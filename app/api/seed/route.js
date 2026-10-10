@@ -1,4 +1,5 @@
 export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Comment } from "@/lib/models";
@@ -21,4 +22,4 @@ export async function GET() {
 
   await Comment.insertMany(fakeComments.map((c) => ({ ...c, isPublic: true })));
   return NextResponse.json({ ok: true, seeded: fakeComments.length });
-}
+                                              }
