@@ -5,4 +5,5 @@ const nextConfig = {
     missingSuspenseWithCSRBailout: false,
   },
 };
+
 module.exports = nextConfig;
