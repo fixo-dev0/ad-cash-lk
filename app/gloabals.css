@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #0B1B3B;
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.btn-gold {
+  @apply bg-gold text-navy font-semibold px-6 py-3 rounded-lg hover:brightness-110 transition;
+}
+.btn-outline {
+  @apply border-2 border-gold text-gold font-semibold px-6 py-3 rounded-lg hover:bg-gold hover:text-navy transition;
+}
+.card {
+  @apply bg-white/5 border border-white/10 rounded-xl p-6;
+}
+.input {
+  @apply w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:border-gold;
+}
