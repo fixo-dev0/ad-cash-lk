@@ -6,8 +6,8 @@ import Logo from "@/components/Logo";
 
 const DAILY_LIMIT = 15;
 const AD_REWARD = 0.30;
-const AD_DURATION = 30; // තත්පර 30
-const MONETAG_DIRECT_LINK = "https://uplcm.com/4/11999583"; // ඔබේ ලින්ක් එක
+const AD_DURATION = 30; // seconds
+const MONETAG_DIRECT_LINK = "https://uplcm.com/4/11999583";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -63,11 +63,6 @@ export default function Dashboard() {
 
   function startWatch(slot) {
     if (watching !== null) return;
-
-    // Monetag ලින්ක් එක අලුත් ටැබ් එකක open කරනවා
-    window.open(MONETAG_DIRECT_LINK, "_blank");
-
-    // ඔරිජිනල් පිටුවේ ටයිමර් එක පටන් ගන්නවා
     setWatching(slot);
     setCountdown(AD_DURATION);
     setCanClaim(false);
@@ -169,50 +164,83 @@ export default function Dashboard() {
 
         <h2 className="text-xl font-bold mb-4">Watch Ads — ${AD_REWARD.toFixed(2)} each</h2>
 
+        {/* Ad Watching Modal */}
         {watching !== null && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <div className="card max-w-md w-full text-center">
-              {!canClaim ? (
-                <>
-                  <div className="text-6xl mb-4">📺</div>
-                  <h2 className="text-xl font-bold mb-2">Ad is playing...</h2>
-                  <p className="text-white/70 mb-6">Please wait and watch the ad</p>
+          <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
+            <div className="w-full max-w-2xl bg-navy-900 border border-white/15 rounded-2xl overflow-hidden shadow-2xl animate-scale-in">
+              {/* Header */}
+              <div className="flex justify-between items-center px-4 py-3 border-b border-white/10 bg-navy-950/50">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  <h2 className="font-semibold text-sm">
+                    {canClaim ? "Ad Complete" : "Ad Playing"}
+                  </h2>
+                </div>
+                <button
+                  onClick={cancelWatch}
+                  className="text-white/50 hover:text-white text-2xl leading-none w-8 h-8 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
 
-                  <div className="text-5xl font-bold text-gold mb-6">{countdown}s</div>
-
-                  <div className="w-full bg-white/10 rounded-full h-3 mb-6">
+              {/* Countdown Bar */}
+              {!canClaim && (
+                <div className="px-4 pt-3 pb-2">
+                  <div className="flex justify-between text-xs text-white/60 mb-1.5">
+                    <span>Time remaining</span>
+                    <span className="text-gold font-mono font-bold">{countdown}s</span>
+                  </div>
+                  <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-gold h-3 rounded-full transition-all duration-1000"
+                      className="bg-gradient-to-r from-gold-400 to-gold-600 h-1.5 rounded-full transition-all duration-1000 ease-linear"
                       style={{ width: `${((AD_DURATION - countdown) / AD_DURATION) * 100}%` }}
                     />
                   </div>
+                </div>
+              )}
 
-                  <p className="text-white/60 text-sm mb-4">
-                    Ad opens in a new tab. Return after watching.
+              {/* Ad Container */}
+              <div className="relative w-full bg-black" style={{ height: "min(60vh, 420px)" }}>
+                {!canClaim ? (
+                  <>
+                    <iframe
+                      src={MONETAG_DIRECT_LINK}
+                      className="w-full h-full border-0"
+                      sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation"
+                      allow="autoplay; encrypted-media; fullscreen"
+                      title="Sponsored Ad"
+                    />
+                    {/* Loading overlay if needed */}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-green-500/10 to-navy-900 p-6 text-center">
+                    <div className="text-7xl mb-4 animate-scale-in">✅</div>
+                    <h2 className="text-2xl font-bold mb-2 text-white">Ad Complete!</h2>
+                    <p className="text-white/60 mb-6">Click below to claim your reward</p>
+                    <button
+                      onClick={claimReward}
+                      className="btn-gold px-10 py-3.5 text-base"
+                    >
+                      Claim ${AD_REWARD.toFixed(2)}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              {!canClaim && (
+                <div className="px-4 py-3 text-center border-t border-white/10 bg-navy-950/50">
+                  <p className="text-xs text-white/40">
+                    ⏱️ Please wait {countdown} seconds. Ad will close automatically.
                   </p>
-
-                  <button onClick={cancelWatch} className="text-white/40 text-xs hover:text-white">
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="text-6xl mb-4">✅</div>
-                  <h2 className="text-xl font-bold mb-2">Ad Complete!</h2>
-                  <p className="text-white/70 mb-6">Click below to claim your reward</p>
-
-                  <button
-                    onClick={claimReward}
-                    className="btn-gold w-full"
-                  >
-                    Claim ${AD_REWARD.toFixed(2)}
-                  </button>
-                </>
+                </div>
               )}
             </div>
           </div>
         )}
 
+        {/* Ad Slots Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {Array.from({ length: DAILY_LIMIT }).map((_, i) => {
             const done = i < user.adsWatchedToday;
@@ -221,7 +249,7 @@ export default function Dashboard() {
               <div key={i} className={`card p-4 text-center ${done ? "opacity-50" : ""}`}>
                 <div className="text-sm text-white/60 mb-2">Slot {i + 1}</div>
                 {done ? (
-                  <div className="text-green-400">✓ Done</div>
+                  <div className="text-green-400 font-semibold">✓ Done</div>
                 ) : (
                   <button
                     onClick={() => startWatch(i)}
@@ -236,15 +264,25 @@ export default function Dashboard() {
           })}
         </div>
 
+        {/* Referral Link */}
         <div className="card mb-8">
           <h3 className="font-semibold mb-2">Your Referral Link</h3>
           <div className="flex gap-2">
             <input className="input text-sm" readOnly value={referralLink} />
-            <button onClick={() => { navigator.clipboard.writeText(referralLink); setMsg("Copied!"); setTimeout(() => setMsg(""), 2000); }}
-              className="btn-gold text-sm py-2 px-4">Copy</button>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(referralLink);
+                setMsg("Copied!");
+                setTimeout(() => setMsg(""), 2000);
+              }}
+              className="btn-gold text-sm py-2 px-4"
+            >
+              Copy
+            </button>
           </div>
         </div>
 
+        {/* Comments */}
         <h2 className="text-xl font-bold mb-4">Community Comments</h2>
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           {comments.map((c) => (
@@ -261,8 +299,12 @@ export default function Dashboard() {
         <div className="card mb-4">
           <h3 className="font-semibold mb-3">Post a Comment (private to you)</h3>
           <form onSubmit={submitComment} className="flex gap-2">
-            <input className="input" placeholder="Share your experience..." value={newComment}
-              onChange={(e) => setNewComment(e.target.value)} />
+            <input
+              className="input"
+              placeholder="Share your experience..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
             <button type="submit" className="btn-gold text-sm py-2 px-4">Post</button>
           </form>
         </div>
@@ -283,4 +325,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-    }
+          }
