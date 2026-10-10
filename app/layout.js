@@ -1,5 +1,4 @@
 import "./globals.css";
-import Script from "next/script";
 
 export const metadata = {
   title: "AdCash LK - Earn Money Watching Ads",
@@ -10,14 +9,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Monetag verification meta tag goes here */}
-        <meta name="monetag" content="YOUR_MONETAG_VERIFICATION_CODE" />
+        {/* Monetag Verification Meta Tag */}
+        <meta name="monetag" content="ac29917a1139a2227cf018f661b72e3a" />
+
         {/* Paste Monetag ad zone code here */}
       </head>
-      <body>
-        {children}
-        {/* Paste Monetag ad zone code here (popunder script) */}
-      </body>
+      <body>{children}</body>
     </html>
   );
-}
+    }
