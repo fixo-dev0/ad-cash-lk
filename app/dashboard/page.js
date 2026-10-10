@@ -6,6 +6,8 @@ import Logo from "@/components/Logo";
 
 const DAILY_LIMIT = 15;
 const AD_REWARD = 0.30;
+const AD_DURATION = 30; // තත්පර 30
+const MONETAG_DIRECT_LINK = "https://uplcm.com/4/11999583"; // ඔබේ ලින්ක් එක
 
 export default function Dashboard() {
   const router = useRouter();
@@ -15,6 +17,7 @@ export default function Dashboard() {
   const [newComment, setNewComment] = useState("");
   const [watching, setWatching] = useState(null);
   const [countdown, setCountdown] = useState(0);
+  const [canClaim, setCanClaim] = useState(false);
   const [resetTimer, setResetTimer] = useState("");
   const [msg, setMsg] = useState("");
   const timerRef = useRef(null);
@@ -34,7 +37,8 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    load(); loadComments();
+    load();
+    loadComments();
     return () => clearInterval(timerRef.current);
   }, []);
 
@@ -59,13 +63,20 @@ export default function Dashboard() {
 
   function startWatch(slot) {
     if (watching !== null) return;
+
+    // Monetag ලින්ක් එක අලුත් ටැබ් එකක open කරනවා
+    window.open(MONETAG_DIRECT_LINK, "_blank");
+
+    // ඔරිජිනල් පිටුවේ ටයිමර් එක පටන් ගන්නවා
     setWatching(slot);
-    setCountdown(30);
+    setCountdown(AD_DURATION);
+    setCanClaim(false);
+
     timerRef.current = setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) {
           clearInterval(timerRef.current);
-          finishWatch(slot);
+          setCanClaim(true);
           return 0;
         }
         return c - 1;
@@ -73,18 +84,26 @@ export default function Dashboard() {
     }, 1000);
   }
 
-  async function finishWatch(slot) {
-    setWatching(null);
+  async function claimReward() {
     const res = await fetch("/api/ads/watch", { method: "POST" });
     const data = await res.json();
     if (res.ok) {
       setMsg(`+$${AD_REWARD.toFixed(2)} added!`);
       setTimeout(() => setMsg(""), 3000);
+      setWatching(null);
+      setCanClaim(false);
       load();
     } else {
       setMsg(data.error || "Error");
       setTimeout(() => setMsg(""), 3000);
     }
+  }
+
+  function cancelWatch() {
+    clearInterval(timerRef.current);
+    setWatching(null);
+    setCanClaim(false);
+    setCountdown(0);
   }
 
   async function submitComment(e) {
@@ -149,6 +168,51 @@ export default function Dashboard() {
         )}
 
         <h2 className="text-xl font-bold mb-4">Watch Ads — ${AD_REWARD.toFixed(2)} each</h2>
+
+        {watching !== null && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="card max-w-md w-full text-center">
+              {!canClaim ? (
+                <>
+                  <div className="text-6xl mb-4">📺</div>
+                  <h2 className="text-xl font-bold mb-2">Ad is playing...</h2>
+                  <p className="text-white/70 mb-6">Please wait and watch the ad</p>
+
+                  <div className="text-5xl font-bold text-gold mb-6">{countdown}s</div>
+
+                  <div className="w-full bg-white/10 rounded-full h-3 mb-6">
+                    <div
+                      className="bg-gold h-3 rounded-full transition-all duration-1000"
+                      style={{ width: `${((AD_DURATION - countdown) / AD_DURATION) * 100}%` }}
+                    />
+                  </div>
+
+                  <p className="text-white/60 text-sm mb-4">
+                    Ad opens in a new tab. Return after watching.
+                  </p>
+
+                  <button onClick={cancelWatch} className="text-white/40 text-xs hover:text-white">
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-6xl mb-4">✅</div>
+                  <h2 className="text-xl font-bold mb-2">Ad Complete!</h2>
+                  <p className="text-white/70 mb-6">Click below to claim your reward</p>
+
+                  <button
+                    onClick={claimReward}
+                    className="btn-gold w-full"
+                  >
+                    Claim ${AD_REWARD.toFixed(2)}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {Array.from({ length: DAILY_LIMIT }).map((_, i) => {
             const done = i < user.adsWatchedToday;
@@ -156,13 +220,14 @@ export default function Dashboard() {
             return (
               <div key={i} className={`card p-4 text-center ${done ? "opacity-50" : ""}`}>
                 <div className="text-sm text-white/60 mb-2">Slot {i + 1}</div>
-                {watching === i ? (
-                  <div className="text-gold text-2xl font-bold">{countdown}s</div>
-                ) : done ? (
+                {done ? (
                   <div className="text-green-400">✓ Done</div>
                 ) : (
-                  <button onClick={() => startWatch(i)} disabled={disabled}
-                    className="btn-gold text-xs py-2 w-full disabled:opacity-40">
+                  <button
+                    onClick={() => startWatch(i)}
+                    disabled={disabled}
+                    className="btn-gold text-xs py-2 w-full disabled:opacity-40"
+                  >
                     Watch Ad
                   </button>
                 )}
@@ -218,4 +283,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-}
+    }
