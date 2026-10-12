@@ -62,7 +62,6 @@ export default function Dashboard() {
     return () => clearInterval(t);
   }, [user]);
 
-  // Try multiple Monetag Vignette trigger API names
   function tryTriggerVignette() {
     if (typeof window === "undefined") return false;
     const w = window;
@@ -85,7 +84,6 @@ export default function Dashboard() {
         /* ignore */
       }
     }
-    // Try generic Monetag queue API
     try {
       if (w.monetag && typeof w.monetag.show === "function") {
         w.monetag.show(VIGNETTE_ZONE);
@@ -100,15 +98,12 @@ export default function Dashboard() {
   function startWatch(slot) {
     if (watching !== null) return;
 
-    // 1. Try to trigger Vignette inside the site
     const vignetteTriggered = tryTriggerVignette();
 
-    // 2. If Vignette didn't trigger, fallback to Direct Link (new tab)
     if (!vignetteTriggered) {
       window.open(MONETAG_DIRECT_LINK, "_blank", "noopener,noreferrer");
     }
 
-    // 3. Start countdown regardless
     setWatching(slot);
     setCountdown(AD_DURATION);
     setCanClaim(false);
@@ -238,7 +233,6 @@ export default function Dashboard() {
           Watch Ads — ${AD_REWARD.toFixed(2)} each
         </h2>
 
-        {/* Ad Watching Modal */}
         {watching !== null && (
           <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-4">
             <div className="w-full max-w-lg bg-navy-900 border border-white/15 rounded-2xl overflow-hidden shadow-2xl animate-scale-in">
@@ -341,7 +335,6 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Ad Slots Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
           {Array.from({ length: DAILY_LIMIT }).map((_, i) => {
             const done = i < user.adsWatchedToday;
@@ -368,7 +361,6 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Referral Link */}
         <div className="card mb-8">
           <h3 className="font-semibold mb-2">Your Referral Link</h3>
           <div className="flex gap-2">
@@ -386,7 +378,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Comments */}
         <h2 className="text-xl font-bold mb-4">Community Comments</h2>
         <div className="grid md:grid-cols-2 gap-4 mb-6">
           {comments.map((c) => (
@@ -433,4 +424,4 @@ export default function Dashboard() {
       </div>
     </main>
   );
-}
+        }
