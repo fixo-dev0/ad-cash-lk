@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata = {
   title: "AdCash LK - Earn Money Watching Ads",
   description: "Earn real money by watching short ads. Withdraw via PayPal or USDT.",
+  verification: {
+    google: "xmmClhuFTcM4CtTM36tCyrHlQIpb8eWXvc8GuelwDUs",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -12,12 +15,19 @@ export default function RootLayout({ children }) {
       <head>
         {/* Monetag Verification Meta Tag */}
         <meta name="monetag" content="ac29917a1139a2227cf018f661b72e3a" />
+
+        {/* Google Search Console Verification */}
+        <meta
+          name="google-site-verification"
+          content="xmmClhuFTcM4CtTM36tCyrHlQIpb8eWXvc8GuelwDUs"
+        />
+
         <meta name="theme-color" content="#060f24" />
       </head>
       <body>
         {children}
 
-        {/* Monetag Vignette Banner (auto + manual trigger attempt) */}
+        {/* Monetag Vignette Banner */}
         <Script
           id="monetag-vignette"
           strategy="afterInteractive"
